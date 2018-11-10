@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+                <div id="content">
+			<canvas id="ticks" width="450" height="450"></canvas>
+			<canvas id="needle" width="450" height="450"></canvas>
+                        <canvas id="overlay" width="450" height="450"></canvas>
+			<canvas id="blackRect" width="450" height="450"></canvas>
+			<canvas id="headLight" width="450" height="450"></canvas>
+			<canvas id="brake" width="450" height="450"></canvas>
+			<canvas id="turningLeft" width="450" height="450"></canvas>
+			<canvas id="turningRight" width="450" height="450"></canvas>
+			<canvas id="windshieldFluid" width="450" height="450"></canvas>
+			<canvas id="fuel" width="450" height="450"></canvas>
+			<canvas id="temperature" width="450" height="450"></canvas>
+			<canvas id="brakeFluid" width="450" height="450"></canvas>
+			
+			<div id="numbers"></div>
+
+			<div id="tripdiv">
+                                <p id="tripText"></p>
+                        </div>
+			<div id="fueldiv">
+				<p id="fuelText">BENSA</p>
+			</div>
+			
+			<div id="tempdiv">
+                                <p id="tempText">LÄMPÖ</p>
+				<p id="temp">0 °C</p>
+                        </div>
+
+			<div id="buttons">
+				<button id="fogLight" onclick="fogLightChange()"><span id="fogLightText">SUMU</span></button>
+			</div>
+		</div>
+
+        </body>
+
+<style>	
+	::-webkit-scrollbar {
+    		width: 0px;
+   		background: transparent;
+	}
+	html, body {
+		background: #000000;
+	}
+	#content {
+                position: absolute;
+		width: 450px;
+		height: 450px;
+                left: 50%;
+                top: 50%;
+		margin-left: -225px;
+		margin-top: -225px;
+		user-select: none;
+        }
+
+	#tripdiv {
+                width: 450px;
+                height: 450px;
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                z-index: 7;
+        }
+	#buttons {
+		width: 450px;
+		height: 450px;
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		z-index: 7;
+	}
+
+	#fogLight {
+		background-color: #ff0000;
+		width: 75px;
+		height: 45px;
+		border: none;
+		margin-left: -37.5px;
+		top: 27.5%;
+		left: 50%;
+		border-radius: 30% 30% 30% 30%;
+		position: absolute;
+		outline: none;
+	}
+	#fogLightText {
+		color: white;
+		font: 25px impact;
+		display: inline-block;
+        }
+
+
+	#tripText {
+		width: 450px;
+                position: relative;
+                top: 80%;
+                font: 20px impact, sans-serif;
+                font-weight: bold;
+		color: white;
+		text-align: center;
+		letter-spacing: 4px;
+		transition: all 1s ease-in-out;
+        }
+	
+	 #fueldiv {
+                width: 450px;
+		height: 450px;
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		z-index: 7;
+        }
+
+	
+	 #fuelText {
+                width: 450px;
+                position: relative;
+                top: 62.5%;
+		right: 35%;
+                font: 20px impact, sans-serif;
+                font-weight: bold;
+                color: white;
+                text-align: center;
+                letter-spacing: 4px;
+		transition: all 1s ease-in-out;
+        }
+
+	#tempdiv {
+                width: 450px;
+                height: 450px;
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                z-index: 7;
+        }
+
+
+         #tempText {
+                width: 450px;
+                position: relative;
+                top: 62.5%;
+                left: 35%;
+                font: 20px impact, sans-serif;
+                font-weight: bold;
+                color: white;
+                text-align: center;
+                letter-spacing: 4px;
+                transition: all 1s ease-in-out;
+        }
+	#temp {
+                width: 450px;
+                position: relative;
+                top: 32.5%;
+                left: 33%;
+                font: 15px impact, sans-serif;
+                font-weight: bold;
+                color: white;
+                text-align: center;
+                letter-spacing: 1px;
+                transition: all 1s ease-in-out;
+        }
+
+
+	#overlay {
+                width: 450px;
+                height: 450px;
+                position: absolute;
+                left: 0px;
+                top: 0px;
+                z-index: 7;
+        }
+
+	#needle {
+                width: 450px;
+                height: 450px;
+                position: absolute;
+                z-index: 3;
+        }
+
+	#ticks {
+		position: absolute;
+		z-index: 2;
+		transition: all 1s ease-in-out;
+	}
+	#headLight {
+                position: absolute;
+                z-index: 7;
+        }
+
+	#numbers {
+		width: 450px;
+		height: 450px;
+		position: absolute;
+		text-align: center;
+		z-index: 4;
+                transition: all 1s ease-in-out;
+        }
+	#fuel {
+                position: absolute;
+                z-index: 7;
+        }
+	#turningLeft {
+		visibility: hidden;
+                position: absolute;
+                z-index: 7;
+        }
+	#turningRight {
+		visibility: hidden;
+                position: absolute;
+                z-index: 7;
+        }
+	#brake {
+		visibility: hidden;
+                position: absolute;
+                z-index: 7;
+        }
+	#windshieldFluid {
+		visibility: hidden;
+                position: absolute;
+                z-index: 7;
+        }
+	#blackRect {
+                position: absolute;
+                z-index: 5;
+        }
+	#temperature {
+                position: absolute;
+                z-index: 7;
+        }
+	#brakeFluid {
+		visibility: hidden;
+                position: absolute;
+                z-index: 7;
+        }
+}
+</style>
+<script>
+    <!--GLOBAL VARIABLES-->
+    var turning;
+    var lightState = "";
+    <!--END OF GLOBAL VARIABLES-->
+    
+	function drawText(x, y, dfc, color){							<!--Function takes in x and y positons of middle poin. dfc = distance from center of numbers. Color is color of numbers-->
+	var numbers = document.getElementById("numbers");  					<!--Gets numbers div to numbers variable-->
+	while(numbers.firstChild){								<!--Empties div -->
+		numbers.removeChild(numbers.firstChild);					<!--Removes childs from numbers div-->
+	}
+	for (var i = 0; i <= 30; i++){								<!--For loop. loops 30 times to show numbers from 0 to 300 in speedometer-->
+		var a, b;									<!--variables for calculating positions with trigonometry-->
+                var alpha = i * (-Math.PI/180) * 10 + Math.PI;					<!--calculates angle for numbers position to be used with triginometry-->
+
+                a = Math.sin(alpha)*dfc;							<!--Calculates a side of triangle-->
+                b = Math.cos(alpha)*dfc;							<!--Calculates b side of triangle-->
+		posx = x + a - 10;								<!--Calculates x position of number using given x point. 10 is for moving number middle of needle because widtht of div is 20px-->
+		posy = y + b - 10;								<!--Calculates y position of number using given y point. 10 is for moving number middle of needle because height of div is 20px-->
+
+		var number = document.createElement('div');					<!--creates div for number-->
+		number.style.position = "absolute";						<!--Sets divs postion to absolute compared to parent div (in this case numbers div)-->
+		number.style.top = posy + "px";							<!--Sets y position for number div-->
+		number.style.left = posx + "px";						<!--Sets x position for number div-->
+		number.style.height = "20px";							<!--Sets height of div to 20px-->
+		number.style.width = "20px";							<!--Sets width of div to 20px-->
+		number.id = "number" + i;							<!--Sets id for number to be used in css animation-->
+		number.style.transition = "all 1s ease-in-out";					<!--Sets animation mode for css animation. See more by googling css transition-->
+		number.style.zIndex = "5";
+		
+		number.appendChild(document.createTextNode(i*10));				<!--appends text child to number div-->
+		numbers.appendChild(number);							<!--appends number div to numbers div-->
+	}	
+	numbers.style.textAlign = "center";							<!--Set numbers div textAlign to center-->
+	numbers.style.font = "20px Arial";							<!--Sets font to 20px arial-->
+	numbers.style.color = color;								<!--Sets color of the text to wanted value-->
+
+
+    }
+    function drawBlackRect(){									<!--Draws 2 black boxes to hide numbers behind-->
+	var br = document.getElementById("blackRect");						<!--gets blackRect canvas-->
+	var brCtx = br.getContext("2d");							<!--gets contect of canvas-->
+	brCtx.clearRect(0,0,br.width,br.height);						<!--clears canvas in case of redrawing it-->
+	brCtx.save();										<!--saves current settings-->
+	brCtx.rotate(-45*Math.PI/180);								<!--rotates canvas -45 degrees-->
+	brCtx.fillStyle = "#000000";								<!--sets fillstyle to black-->
+	brCtx.fillRect(-320,320,700,400);							<!--draws big black ractangle-->
+	
+	brCtx.rotate(90*Math.PI/180);								<!--rotates canvas 90 degrees to different direction-->
+        brCtx.fillRect(0,0,700,400);								<!--fills big black rectangle-->
+    	brCtx.restore();									<!--restores previous settings-->
+    }
+
+    function drawWindshieldFluid(x, y, color) {							<!--Function takes in x and y position of middle point for icon. Color is color of the icon-->
+	var ws = document.getElementById("windshieldFluid");					<!--Gets winshieldFluid canvas to ws variable-->
+	var wsCtx = ws.getContext("2d");							<!--Gets context of the canvas-->
+
+	wsCtx.clearRect(0,0,450,450);								<!--clears the canvas-->
+	wsCtx.save();										<!--saves canvas configuration-->
+	wsCtx.beginPath();									<!--Begins path to draw-->
+	wsCtx.translate(x, y);									<!--translates the origin of the canvas to wanted x,y coordinates-->
+	
+	wsCtx.arc(0,0,10,-0.75*Math.PI,-0.25*Math.PI);						<!--draws top arc-->
+	wsCtx.moveTo(-6.5,-6.5);								<!--moves to start of lower arc-->
+	wsCtx.arc(0,0,30,-0.75*Math.PI,-0.25*Math.PI);						<!--draws lower arc-->
+	wsCtx.moveTo(6.5,-6.5);									<!--moves to right end of lower arc-->
+	wsCtx.lineTo(22.5,-22.5);								<!--draws line from right end of lower arc to right end of top arc-->
+
+	wsCtx.moveTo(0,-10);									<!--moves to middle of lower arc-->
+	wsCtx.lineTo(0,-35);									<!--draws straight line middle of icon-->
+	
+	wsCtx.moveTo(0,-35);									<!--Right side arc on top of line-->									
+	wsCtx.lineTo(2.5,-37);									<!--Right side arc on top of line-->
+	wsCtx.moveTo(2.5,-37);									<!--Right side arc on top of line-->
+        wsCtx.lineTo(10,-37);									<!--Right side arc on top of line-->
+	wsCtx.moveTo(10,-37);									<!--Right side arc on top of line-->
+        wsCtx.lineTo(12.5,-34);									<!--Right side arc on top of line-->
+
+	wsCtx.moveTo(0,-35);									<!--Left side arc on top of line-->
+        wsCtx.lineTo(-2.5,-37);									<!--Left side arc on top of line-->
+        wsCtx.moveTo(-2.5,-37);									<!--Left side arc on top of line-->
+        wsCtx.lineTo(-10,-37);									<!--Left side arc on top of line-->
+        wsCtx.moveTo(-10,-37);									<!--Left side arc on top of line-->
+        wsCtx.lineTo(-12.5,-34);								<!--Left side arc on top of line-->
+
+	wsCtx.strokeStyle = color;								<!--Sets color of icon to wanted color-->
+	wsCtx.lineWidth = 3;									<!--Sets line width-->
+	wsCtx.stroke();										<!--Draws icon-->
+	wsCtx.restore();									<!--restores canvas configuration in case if icon is drawn again (reverts origin translation)-->
+    }
+
+    function drawTurningSignals(x, y, color){							<!--Function takes in x and y position of middle point for icon. Color is color of the icon-->
+	var left = document.getElementById("turningLeft");					<!--Gets turningleft canvas to variable-->
+	var right = document.getElementById("turningRight");					<!--Gets turningRight canvas to variable-->
+	var leftCtx = left.getContext("2d");							<!--Gets context of left canvas-->
+	var rightCtx = right.getContext("2d");							<!--Gets context of right canvas-->
+
+	leftCtx.clearRect(0,0,450,450);								<!--Clears left canvas-->
+	leftCtx.save();										<!--saves left canvas configuration-->
+	leftCtx.beginPath();									<!--Begins path to draw-->
+	leftCtx.arc(x,y,220,0.5*Math.PI,1.5*Math.PI);						<!--sets left side of outer circle using given x,y coordinates-->
+	leftCtx.strokeStyle = color;								<!--Sets color of circle to given color-->
+	leftCtx.lineWidth = 4;									<!--Sets line width to 4-->
+	leftCtx.stroke();									<!--Draws circles-->
+	leftCtx.restore();									<!--Restores canvas configuration-->
+
+	rightCtx.clearRect(0,0,450,450);							<!--clears right canvas-->
+	rightCtx.save();									<!--saves right canvas configuration-->
+        rightCtx.beginPath();									<!--begins path to draw-->
+        rightCtx.arc(x,y,220,-0.5*Math.PI,0.5*Math.PI);						<!--sets right side of outer circle using given x,y coordinates-->
+        rightCtx.strokeStyle = color;								<!--sets color of circle to given color-->
+        rightCtx.lineWidth = 4;									<!--sets line width to 4-->
+        rightCtx.stroke();									<!--draws circle-->
+        rightCtx.restore();									<!--restores canvas configuration-->
+    }
+
+    function drawBrake(x, y, color) {								<!--Function takes in x and y position of middle point for icon. Color is color of the icon-->
+	var brake = document.getElementById("brake");						<!--Gets brake canvas to variable-->
+        var brakeCtx = brake.getContext("2d");							<!--Gets context of canvas-->
+	
+	brakeCtx.clearRect(0,0,450,450);							<!--Clears canvas-->
+	brakeCtx.save();									<!--saves canvas configuration-->									
+	brakeCtx.translate(x, y);								<!--translates origin of canvas to given coordinates-->
+	brakeCtx.beginPath();									<!--begins path to draw-->
+
+	brakeCtx.moveTo(0,-15);									<!--Moves to begin of middle circle (top)-->								
+	brakeCtx.arc(0, 0, 15, 1.5*Math.PI, -0.5*Math.PI);					<!--Middle circle-->
+	
+	brakeCtx.moveTo(-15,15);								<!--Moves to begin of left circle-->							
+	brakeCtx.arc(0, 0, 20, 0.75*Math.PI, 1.25*Math.PI);					<!--Left circle-->
+
+	brakeCtx.moveTo(15,-15);								<!--Moves to begin of right circle-->
+	brakeCtx.arc(0, 0, 20, -0.25*Math.PI, 0.25*Math.PI);					<!--Right circle-->
+	
+	brakeCtx.moveTo(0,-10);									<!--Moves to begin of exclamation mark line-->
+	brakeCtx.lineTo(0,3);									<!--exclamation mark line-->
+	
+	brakeCtx.moveTo(0,5);									<!--moves to beginn of exclamation mark dot-->
+	brakeCtx.lineTo(0,10);									<!--exclamation mark dot-->
+			
+	brakeCtx.lineWidth = 3;									<!--Sets line width to 3-->
+	brakeCtx.strokeStyle = color;								<!--sets color to given color-->
+	brakeCtx.stroke();									<!--draws icon-->
+	brakeCtx.restore();									<!--restores canvas configuration-->
+    }
+
+    function drawBrakeFluid(x, y, color) {                                                      <!--Function takes in x and y position of middle point for icon. Colot is the color of the icon-->
+        var brakeFluid = document.getElementById("brakeFluid");                                 <!--Gets brake canvas to variable-->
+        var brakeFluidCtx = brakeFluid.getContext("2d");                                        <!--Gets context of canvas-->
+
+        brakeFluidCtx.clearRect(0,0,brakeFluid.width, brakeFluid.height);                       <!--Clears canvas-->
+        brakeFluidCtx.save();                                                                   <!--saves canvas configuration-->                               
+        brakeFluidCtx.translate(x, y);                                                          <!--translates origin of canvas to given coordinates-->
+        brakeFluidCtx.beginPath();                                                              <!--begins path to draw-->
+
+        brakeFluidCtx.moveTo(0,-15);                                                            <!--Moves to begin of middle circle (top)-->                    
+        brakeFluidCtx.arc(0, 0, 15, 1.5*Math.PI, -0.5*Math.PI);                                 <!--Middle circle-->
+
+        brakeFluidCtx.moveTo(-15,15);                                                           <!--Moves to begin of left circle-->                            
+        brakeFluidCtx.arc(0, 0, 20, 0.75*Math.PI, 1.25*Math.PI);                                <!--Left circle-->
+
+        brakeFluidCtx.moveTo(15,-15);                                                           <!--Moves to begin of right circle-->
+        brakeFluidCtx.arc(0, 0, 20, -0.25*Math.PI, 0.25*Math.PI);                               <!--Right circle-->
+
+
+        brakeFluidCtx.lineWidth = 3;                                                            <!--Sets line width to 3-->
+        brakeFluidCtx.strokeStyle = color;                                                      <!--sets color to given color-->
+        brakeFluidCtx.stroke();                                                                 <!--draws icon-->
+        brakeFluidCtx.fillStyle = color;
+	brakeFluidCtx.font = "10px impact"; 
+	brakeFluidCtx.fillText("JARRU", -12, 0);
+	brakeFluidCtx.fillText("NESTE", -12, 10);
+	brakeFluidCtx.restore();                                                                <!--restores canvas configuration-->
+    }
+	
+    
+    function drawFuel(x, y, dfc, backgroundColor, topColor, fuelLevel) {			<!--Function takes x and y positions. dfc = distance from center of gauge. backgroundColor is color of background. topColor is color of the gauge-->
+	var fuel = document.getElementById("fuel");						<!--gets fuel canvas-->
+	var fuelCtx = fuel.getContext("2d");							<!--gets fuel context-->
+	
+	fuelCtx.clearRect(0,0,fuel.width, fuel.height);    	 	                        <!--clears canvas-->
+        fuelCtx.save();                                                    	                <!--saves canvas configuration-->	
+	fuelCtx.translate(x,y);									<!--translates origin to given coordinates-->
+	
+	fuelCtx.beginPath();									<!--begins background of gauge-->
+	fuelCtx.strokeStyle = backgroundColor;							<!--sets color of the gauge-->
+	fuelCtx.lineWidth = 30;									<!--width of gauge-->
+	fuelCtx.arc(0,0,dfc,0.88*Math.PI,1.25*Math.PI);						<!--defines arc of gauge-->
+	fuelCtx.stroke();									<!--draws background-->
+	
+	fuelCtx.beginPath();									<!--begins indicator-->
+	fuelCtx.strokeStyle = topColor;								<!--defines indicator color-->
+        fuelCtx.arc(0,0,dfc,0.88*Math.PI,(fuelLevel*(0.88-1.25)+1.25)*Math.PI);			<!--fuel level. fuel level shoud be 0 to 1. calculates point between 0.88 and 1.25 acording to fuel level-->
+        fuelCtx.stroke();									<!--draws fuel indicator-->
+
+	fuelCtx.restore();									<!--restores settings-->
+    }
+
+    function drawTemp(x, y, dfc, backgroundColor, topColor, tempLevel) {                        <!--Function takes x and y positions. dfc = distance from center of gauge. backgroundColor is color of background. topColor is color of the indicator-->
+        var temp = document.getElementById("temperature");                                      <!--gets temp canvas-->
+        var tempCtx = temp.getContext("2d");                                                    <!--gets temp context-->
+
+        tempCtx.clearRect(0,0,temp.width, temp.height);                                         <!--clears canvas-->
+        tempCtx.save();                                                                         <!--saves canvas configuration-->
+        tempCtx.translate(x,y);                                                                 <!--translates origin to given coordinates-->
+
+        tempCtx.beginPath();                                                                    <!--begins background of gauge-->
+        tempCtx.strokeStyle = backgroundColor;                                                  <!--sets color of the gauge-->
+        tempCtx.lineWidth = 30;                                                                 <!--width of gauge-->
+        tempCtx.arc(0,0, dfc, 0.12*Math.PI, -0.25*Math.PI, true);		                <!--defines arc of gauge-->
+        tempCtx.stroke();                                                                       <!--draws background-->
+
+        tempCtx.beginPath();                                                                    <!--begins indicator-->
+        tempCtx.strokeStyle = topColor;                                                         <!--defines indicator color-->
+        tempCtx.arc(0,0,dfc,0.12*Math.PI,(tempLevel*(0.12+0.25)-0.25)*Math.PI, true);  		<!--temp level. temp level shoud be 0 to 1. calculates point between 0.12 and -0.25 acording to temp level-->
+        tempCtx.stroke();                                                                       <!--draws fuel indicator-->
+
+        tempCtx.restore();                                                                      <!--restores settings-->
+    }
+    function drawHeadLight(x, y, color){							<!--Function takes in x and y positions of icon. Color is color of the icon-->
+	var headLight = document.getElementById("headLight");					<!--gets headlight canvas to variable-->
+	var headLightCtx = headLight.getContext("2d");						<!--getc canvas context-->
+		
+	headLightCtx.clearRect(0,0,headLight.width, headLight.height);				<!--clears canvas-->
+	headLightCtx.save();									<!--saves canvas configuration-->				
+	headLightCtx.translate(x, y);								<!--translates canvas origin to given x,y coordinates-->
+	headLightCtx.fillStyle = color;								<!--sets canvas fillstyle to given color-->			
+        headLightCtx.font = "15px impact"							<!--sets canvas font to 15px impact-->
+
+	headLightCtx.beginPath();								<!--begins drawing path-->
+	headLightCtx.moveTo(0,-20);								<!--moves to begining of right side of lamp-->
+	headLightCtx.lineTo(0,20);								<!--right side of lamp-->
+	
+	headLightCtx.moveTo(0, 20);								<!--moves to begining of left side of lamp-->
+	headLightCtx.arc(0, 0, 20, 1.5*Math.PI,  0.5*Math.PI, true);				<!--left side of lamp-->
+	
+	if (lightState == "normal") {								<!--checks lightstate from global variable-->
+		
+		headLightCtx.moveTo(5,-10);							<!--Top beam-->
+        	headLightCtx.lineTo(35,0);							<!--Top beam-->
+	
+		headLightCtx.moveTo(5,0);							<!--Middle beam-->
+        	headLightCtx.lineTo(35,10);							<!--Middle beam-->
+	
+		headLightCtx.moveTo(5,10);							<!--Bottom beam-->
+        	headLightCtx.lineTo(35,20);							<!--Bottom beam-->
+	}
+	
+	else if (lightState == "long") {							<!--checks lightstate from global variable-->
+		
+		headLightCtx.moveTo(5,-10);							<!--Top beam-->
+                headLightCtx.lineTo(35,-10);							<!--Top beam-->
+
+                headLightCtx.moveTo(5,0);							<!--Middle beam-->
+                headLightCtx.lineTo(35,0);							<!--Middle beam-->
+
+                headLightCtx.moveTo(5,10);							<!--Bottom beam-->
+                headLightCtx.lineTo(35,10);							<!--Bottom beam-->
+
+	}
+	
+	else if (lightState == "parking") {                                                     <!--checks lightstate from global variable-->
+
+                headLightCtx.moveTo(5,-10);                                                     <!--Top beam-->
+                headLightCtx.lineTo(35,-15);                                                    <!--Top beam-->
+
+                headLightCtx.moveTo(5,0);                                                       <!--Middle beam-->
+                headLightCtx.lineTo(35,0);                                                      <!--Middle beam-->
+
+                headLightCtx.moveTo(5,10);                                                      <!--Bottom beam-->
+                headLightCtx.lineTo(35,15);                                                     <!--Bottom beam-->
+
+                headLightCtx.fillText("PARK", -30, 35);						<!--PARK text under light-->
+	}
+	
+	else if (lightState == "fogNormal") {							<!--checks lightstate from global variable-->
+		
+		headLightCtx.moveTo(5,-10);							<!--Top beam-->
+                headLightCtx.lineTo(35,0);							<!--Top beam-->
+
+                headLightCtx.moveTo(5,0);							<!--Middle beam-->
+                headLightCtx.lineTo(35,10);							<!--Middle beam-->
+
+                headLightCtx.moveTo(5,10);							<!--Bottom beam-->
+                headLightCtx.lineTo(35,20);							<!--Bottom beam-->
+		
+		headLightCtx.moveTo(17.5,-15);							<!--Foglight line-->
+		headLightCtx.lineTo(17.5,20);							<!--Foglight line-->
+		
+		headLightCtx.fillText("FOG", -20, 35);						<!--FOG text under light-->
+	}
+	
+	else if (lightState == "fogLong") {							<!--checks lightstate from global variable-->
+		
+		headLightCtx.moveTo(5,-10);							<!--Top beam-->
+                headLightCtx.lineTo(35,-10);							<!--Top beam-->
+
+                headLightCtx.moveTo(5,0);							<!--Middle beam-->
+                headLightCtx.lineTo(35,0);							<!--Middle beam-->
+
+                headLightCtx.moveTo(5,10);							<!--Bottom beam-->
+                headLightCtx.lineTo(35,10);							<!--Bottom beam-->
+		
+		headLightCtx.moveTo(17.5,-15);							<!--Foglight line-->
+                headLightCtx.lineTo(17.5,15);							<!--Foglight line-->
+		
+                headLightCtx.fillText("FOG", -20, 35);						<!--FOG text under light-->
+
+	}
+	
+	else if (lightState == "fogParking") {							<!--checks lightstate from global variable-->
+		
+		headLightCtx.moveTo(5,-10);							<!--Top beam-->
+                headLightCtx.lineTo(35,-15);							<!--Top beam-->
+
+                headLightCtx.moveTo(5,0);							<!--Middle beam-->
+                headLightCtx.lineTo(35,0);							<!--Middle beam-->
+
+                headLightCtx.moveTo(5,10);							<!--Bottom beam-->
+                headLightCtx.lineTo(35,15);							<!--Bottom beam-->
+
+		headLightCtx.moveTo(17.5,-20);							<!--Foglight line-->
+                headLightCtx.lineTo(17.5,20);							<!--Foglight line-->
+
+                headLightCtx.fillText("FOG PARK", -55, 35);					<!--FOG PARK text under light-->
+
+        }
+	
+	else {											<!--If´lightstate is none above-->
+		
+		headLightCtx.moveTo(5,-15);							<!--X mark-->
+                headLightCtx.lineTo(35,15);							<!--X mark-->
+
+                headLightCtx.moveTo(5,15);							<!--X mark-->
+                headLightCtx.lineTo(35,-15);							<!--X mark-->
+
+	}
+	
+	headLightCtx.lineWidth = 3;								<!--Setting line width-->
+	headLightCtx.strokeStyle = color;							<!--setting color of lines-->
+	headLightCtx.stroke();									<!--drawing lines-->
+	headLightCtx.restore();									<!--restoring canvas configures-->
+	
+    }
+
+    function drawTicks(x, y, dfc, color) {							<!--Function takes in x and y coordinates of middle point. dfc = distance from middle of given x,y coordinates. Color is color of ticks-->
+    	var ticks = document.getElementById("ticks");						<!--gets ticks canvas to variable-->
+    	var ticksCtx = ticks.getContext("2d");							<!--gets canvas context-->
+    	ticksCtx.clearRect(0,0, ticks.width, ticks.height);					<!--clears canvas-->
+    	ticksCtx.save();									<!--saves current configuration of canvas-->
+    	ticksCtx.translate(x, y);								<!--translates origin of the canvas to given coordinates-->
+    	
+    	for(var i = 35; i >= 0; i--) {								<!--For loop. Loops 35 times to complete whole circle-->
+    		var a, b;									<!--variables to use to calculate x and y positions of ticks using trigonomethry-->
+    		var alpha = i * (-Math.PI/180) * 10 + Math.PI;					<!--calculating angle to use to calculate x and y of ticks-->
+    		
+    		a = Math.sin(alpha)*dfc;							<!--a side of triangle-->
+    		b = Math.cos(alpha)*dfc;							<!--b side of triangle-->
+    		ticksCtx.save();								<!--saving current configure of canvas-->
+    		ticksCtx.translate(a,b);							<!--translating origin to the new coordinates of ticks starting point-->
+    		
+		ticksCtx.save();								<!--Saving canvas current settings-->
+    		ticksCtx.beginPath();								<!--Begining patch to draw-->
+    		ticksCtx.rotate(i*10*Math.PI/180);						<!--Rotating canvas to correct orientation-->
+    		ticksCtx.moveTo(0,15);								<!--moving to start of longer tick-->
+    		ticksCtx.lineTo(0,30);								<!--longer tick-->
+    		ticksCtx.restore();								<!--restoring previous canvas configurations (undoing rotate)-->
+    		
+    		ticksCtx.rotate(i*10*Math.PI/180);						<!--rotating canvas to right orientation-->
+    		ticksCtx.moveTo(13,20);								<!--moving to start of smaller tick-->
+    		ticksCtx.lineTo(12,30);								<!--smaller tick-->
+    		ticksCtx.restore();								<!--Restoring canvas previous settings to settings before for loop-->
+		ticksCtx.strokeStyle = color;							<!--setting color of line-->
+		ticksCtx.stroke();								<!--drawing line-->
+
+	}
+		
+	ticksCtx.restore();									<!--restoring canvas settings-->
+	
+    }
+    
+    function drawNeedle(x, y, color) {								<!--Function takes in x and y coordinates of middle point. Color is color of needle-->								
+    	var needle = document.getElementById("needle");						<!--Gets needle canvas to variable-->
+    	var needleCtx = needle.getContext("2d");						<!--gets context of canvas-->
+	needleCtx.clearRect(0,0,needle.width, needle.height);					<!--clears canvas-->
+    	needleCtx.save();									<!--saves current canvas configuration-->
+    	needleCtx.translate(needle.width/2,needle.height/2);					<!--translates origin of canvas to given x,y coordinates-->
+	needleCtx.fillStyle= color;								<!--set color of the needle to given color-->
+	needleCtx.shadowBlur=10;								<!--gives shadow to the needle-->
+	needleCtx.shadowColor= color;								<!--gives color to the shadow-->
+    	needleCtx.fillRect(-2, -145, 4, -75);							<!--draws needle-->
+	needleCtx.restore();									<!--restores canvas configuration-->
+    }
+    
+    function drawOverlay(x, y, color) {								<!--Function takes in x and y coordinates of middle point. Color is color of the overlay rings-->
+    	var overlay = document.getElementById("overlay");					<!--Gets overlay canvas to variable-->
+    	overlayCtx = overlay.getContext("2d");							<!--Gets context of the overlay-->
+	overlayCtx.clearRect(0,0,overlay.width, overlay.height);    				<!--Clears overlay-->
+    	overlayCtx.strokeStyle = color;								<!--Circle color-->
+    	overlayCtx.lineWidth = 4;								<!--Line width to 4-->
+    	overlayCtx.beginPath();									<!--Begin outer circle path-->
+    	overlayCtx.arc(x, y,220,0,2*Math.PI,true);						<!--Outer circle-->
+    	overlayCtx.stroke();									<!--Draws outer circle-->
+    }
+    
+    
+    setInterval(function() {									<!--Interval function request data from node every 100 milliseconds using xmlhttprequest-->
+	var xhttp = new XMLHttpRequest();							<!--variable for xmlhttprequest-->
+  	xhttp.onreadystatechange = function() {							<!--when httprequest is is ready goes to this function-->
+    		if (this.readyState == 4 && this.status == 200) {				<!--if request is successfull-->
+      			var data = JSON.parse(xhttp.responseText)				<!--parses response JSON text to JSON object-->
+                	var deg = -data.speed;							<!--variable to rotation degrees. To rotate anticlockwise degreeds need to be negative values. degrees corresponds to speed-->
+                	var trip = parseFloat(data.trip).toFixed(1);				<!--Variable to trip kilometers. Float is parsed to have one number after "." like 0.0-->
+			var fuel = data.fuel / 130;						<!--variable for fuel status. depends on your sensor what kind of values you get. Value is divided so it has values from 0 to 18-->
+			var temp = data.temp;							<!--variable for temperature-->
+			lightState = data.lightState;						<!--Changing lightstate-->
+                	turning = data.turning;							<!--Changing turning signals-->
+			var ticks = document.getElementById("ticks");				<!--Getting ticks canvas-->
+                	ticks.style.transform = 'rotate('+deg+'deg)';				<!--Rotating canvas required amount-->
+                	
+			var numbers = document.getElementById("numbers");			<!--Getting numbers div-->
+                	numbers.style.transform = 'rotate('+deg+'deg)';				<!--Rotating numbers div required amount-->
+                	for(var i = 0; i <= 30; i++){						<!--For loop for rotating numbers to opposite way compared to numbers div-->
+                		var number = document.getElementById("number" + i);		<!--Getting number div-->
+                        	number.style.transform = "rotate(" +-deg + "deg)";		<!--Rotating number div to opposite way compared to numbers div. So numbers stay in level-->
+                	}
+			
+                	
+			document.getElementById("tripText").innerHTML = trip;			<!--changing trip text to new one-->
+			document.getElementById("temp").innerHTML = temp + "°C";		<!--changing temperature reading-->
+			
+			temp = 1 - (temp / 180);						<!--getting value between 0 and 1 for gauge. 180 max temp-->
+
+			if (temp < 0) temp = 0;							<!-- if temp is under 0 sets it back to 0-->
+			else if (temp > 1) temp = 1;						<!--if temp is over 1 sets it back to 1-->
+			drawTemp(225,225,200, "#ff0000", "#00ff00", temp);			<!--draws temp gauge-->
+
+			if (fuel < 0) fuel = 0;							<!--If fuel is under 0 sets it back to 0-->
+			else if (fuel > 1) fuel = 1;						<!--If fuel is over 1 sets it back to 1-->
+			drawFuel(225,225,200, "#ff0000", "#00ff00", fuel);			<!--Draws fuel to update it-->
+
+			if (fuel > 0.8){							<!--checking if fuel value is higher than 15-->
+				var fuelText = document.getElementById("fuelText");		<!--gets fueltext text element-->
+                                fuelText.style.color = "#ff0000";				<!--changes color of the text to red-->
+			}
+			else {
+				var fuelText = document.getElementById("fuelText");		<!--gets fueltext text element-->
+				fuelText.style.color = "#ffffff";				<!--changes color of the text to white-->
+
+			}
+
+			if (lightState == "long" || lightState == "fogLong"){
+				drawHeadLight(225,225,"#0000ff");
+			}
+			else drawHeadLight(225,225,"#ff0000");					<!--Refreshing light in case of lightstate change-->
+		}
+  	};
+  	xhttp.open("GET", "http://192.168.1.9:5000/api/data", true);				<!--Opening xmlhttprequest to specific URL (http://localhost/api/data (if using raspberry pi screen)). true means request is sent async-->
+  	xhttp.send();										<!--Sending request-->
+    }, 100);
+    
+    setInterval (function(){									<!--interval function to blink turning signals every 500 milliseconds if turning variable if either "right or "left"-->
+	var left = document.getElementById("turningLeft");					<!--getting turningleft canvas to variable-->
+	var right = document.getElementById("turningRight");					<!--getting turningright canvas to variable-->
+	if(turning == "left"){									<!--checking if turning global variable is left-->
+		right.style.visibility = "hidden";						<!--Hiding right turning signal-->
+		if(left.style.visibility == "hidden")left.style.visibility = "visible";		<!--Checking if turningleft is already hidden. if it is hidden then turning it visible-->
+		else left.style.visibility = "hidden";						<!--else if its already visible then hiding it-->
+	}
+	else if (turning == "right"){								<!--checking if turning global variable is right-->
+		left.style.visibility = "hidden";						<!--Hiding left turning signal-->
+                if(right.style.visibility == "hidden")right.style.visibility = "visible";	<!--Checking if turningright is already hidden. if it is hidden then turning it visible-->
+                else right.style.visibility = "hidden";						<!--else if its already visible then hiding it-->
+	}
+	else{											<!--Else if turning variable is none of above-->
+		left.style.visibility = "hidden";						<!--hiding left turning signal-->
+		right.style.visibility = "hidden";						<!--hiding right turning signal-->
+	}
+    }, 500);
+	
+    function fogLightChange(){									<!--function for changing fog light from webpage-->
+	var fogLight = document.getElementById("fogLight");					<!--getting foglight div to variable-->
+	if (lightState == "normal"){								<!--if lightState is normal changes it to fogNormal and sets opacity of button to 0.5-->
+		lightState = "fogNormal";
+		fogLight.style.opacity = "0.5";
+	}
+	else if (lightState == "long"){								<!--if lightState is long changes it to fogLong and sets opacity of button to 0.5-->
+		lightState = "fogLong";
+		fogLight.style.opacity = "0.5";
+	}
+	else if (lightState == "parking"){							<!--if lightState is parking changes it to fogParking and sets opacity of button to 0.5-->
+		lightState = "fogParking"; 
+		fogLight.style.opacity = "0.5";
+	}
+	else if (lightState == "fogNormal"){							<!--if lightState is fogNormal changes it to normal and sets opacity of button to 1-->
+		lightState = "normal";
+		fogLight.style.opacity = "1"
+	}
+        else if (lightState == "fogLong"){							<!--if lightState is fogLong changes it to long and sets opacity of button to 1-->
+		lightState = "long";
+		fogLight.style.opacity = "1";
+	}
+        else if (lightState == "fogParking"){							<!--if lightState is fogParking changes it to parking and sets opacity of button to 1-->
+		lightState = "parking";
+		fogLight.style.opacity = "1";
+	}
+		
+	var xhr = new XMLHttpRequest();								<!--creates new xmlhttprequest-->
+	xhr.timeout = 100;									<!--sets timeout for request so raspberry pi doesn't jam-->
+	xhr.open("POST", "http://192.168.1.9:5000/api/recieve", true);				<!--opens post request to specific URL (http://localhost:5000/api/recieve (if using raspberry pi screen)). true means async request-->
+	xhr.setRequestHeader('Content-type', 'application/json')				<!--sets header to correct one-->
+	xhr.send(JSON.stringify({"lightState":lightState}));					<!--sends lightState as json string-->
+   }
+    
+    <!--DRAWS EVERYTHING-->
+    drawTicks(225,225, 185,"#ffffff");
+    drawNeedle(225,225,"#ff6666");
+    drawText(225,225,185,"#ffffff");
+    drawOverlay(225,225,"#ffffff");
+    drawFuel(225,225,200, "#ff0000", "#00ff00", 0.5);
+    drawTurningSignals(225,225,"#00ff00");
+    drawHeadLight(225,225,"#ff0000");
+    drawBrake(175,350,"#ff0000");
+    drawWindshieldFluid(225,370, "#ff0000");
+    drawBlackRect();
+    drawTemp(225,225,200, "#ff0000", "#00ff00", 0.5);
+    drawBrakeFluid(275,350,"#ff0000");
+    <!--END OF SCRIPT-->
+</script>
+</html>
+
